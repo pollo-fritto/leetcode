@@ -12,103 +12,105 @@ If you cannot achieve any profit, return 0.
 
 #include <vector>
 
+
 /*
-NOT WORKING! 
-counter example: 98,99, 2, 34, 0, 5
+NOTE: the problem does not ask to keep track of the indexes!
+Here is a waaaaay better solution than mine
 */
 
 class Solution {
 public:
     int maxProfit(std::vector<int>& prices) {
-        if (prices.size() == 0 || prices.size() == 1){
-            return 0;
+        int buy = prices[0];
+        int profit = 0;
+        for (int i = 1; i < prices.size(); i++) {
+            if (prices[i] < buy) {
+                buy = prices[i];
+            } else if (prices[i] - buy > profit) {
+                profit = prices[i] - buy;
+            }
         }
-
-        int min = 0, max = 1;
-
-        for (int i = 2; i < prices.size(); i++){
-            if(prices[i] < prices[min])
-                min = i;
-            else if (prices[i] > prices[max])
-                max = i;
-        }
-
-        if (min < max)
-            return prices[max] - prices[min];
-
-        int min1 = 0, max1 = max + 1;
-
-        for(int i = 0; i < max; i++){
-            if(prices[i] < prices[min1])
-                min1 = i;
-        }
-
-        for(int i = max + 2; i < prices.size(); i++){
-            if (prices[i] > prices[max1])
-                max1 = i;
-        }
-
-        int profit = prices[max] - prices[min1];
-        int profit1 = prices[max1] - prices[min];
-
-        return profit > profit1 ? profit : profit1; 
-        
-
+        return profit;
     }
 };
-        // int min = 0, max = 1;
-        // int tmp_min, tmp_max;
 
-        // if (prices.size() == 0)
-        //     return 0;
+/*
 
-        // if (prices.size() == 1)
-        //     return 0;
+I traverse the vector once and I keep 4 indexes: tmp_min & tmp_max
+are the last best couple I found. When i find a new maximum I update 
+tmp_max. When I find a new min compared to tmp_min, I check if 
+tmp_min and tmp_max perform better than min & max. If so I 
+overwrite min & max and set tmp_min and tmp_max to the last
+element. The condition that tells me if one of the 2 couples
+is not valid, is if they are equal.
 
-        // if (prices[0] > prices[1]){
-        //     max = 0;
-        //     min = 1; 
-        // }
+*/
 
-        // tmp_min = min;
-        // tmp_max = max;
-        // for (int i = 2; i < prices.size(); i++){
-        //     if (tmp_max == 0){
-        //         if (prices[i] < prices[tmp_min]){
-        //             tmp_min = i;
-        //             continue;
-        //         }
-
-        //         tmp_max = i;
-        //         continue;
-        //     }
-
-        //     if (prices[i] > prices[tmp_max]){
-        //         tmp_max = i;
-        //         continue;
-        //     }
-
-        //     if (prices[i] < prices[tmp_max]){
-        //         int tmp_profit = prices[tmp_max] - prices[tmp_min];
-        //         int profit = prices[max] - prices[min];
-
-        //         if(tmp_profit > profit){
-        //             min = tmp_min;
-        //             max = tmp_max;
-        //         }
-
-        //         tmp_min = i;
-        //         tmp_max = 0;
-
-        //         continue;
-        //     }
-        // }
+class Solution {
+public:
+    int maxProfit(std::vector<int>& prices) {
         
-        // if (tmp_max == 0){
-        //     return max == 0 ? 0 : prices[max] - prices[min];
-        // }
+        int min = 0, max = 1;
+        int tmp_min, tmp_max;
 
-        // int tmp_profit = prices[tmp_max] - prices[tmp_min];
-        // int profit = prices[max] - prices[min];
+        if (prices.size() == 0)
+            return 0;
 
-        // return tmp_profit > profit? tmp_profit : profit;
+        if (prices.size() == 1)
+            return 0;
+
+        if (prices[0] > prices[1]){
+            min = 1; 
+        }
+
+        tmp_min = min;
+        tmp_max = max;
+        for (int i = 2; i < prices.size(); i++){
+            if (tmp_max == tmp_min){
+                if (prices[i] < prices[tmp_min]){
+                    tmp_min = i;
+                }
+
+                tmp_max = i;
+                continue;
+            }
+
+            if (prices[i] > prices[tmp_max]){
+                tmp_max = i;
+                continue;
+            }
+            
+            if (prices[i] > prices[tmp_min])
+                continue;
+            
+            if (max == min){
+                
+                min = tmp_min;
+                max = tmp_max;
+  
+            } else{
+                
+                int tmp_profit = prices[tmp_max] - prices[tmp_min];
+                int profit = prices[max] - prices[min];
+    
+                if(tmp_profit > profit){
+                    min = tmp_min;
+                    max = tmp_max;
+                }
+            }
+
+            tmp_min = i;
+            tmp_max = i;
+
+        }
+        
+        if (tmp_max == tmp_min){
+            return max == min ? 0 : prices[max] - prices[min];
+        }
+
+        int tmp_profit = prices[tmp_max] - prices[tmp_min];
+        int profit = prices[max] - prices[min];
+
+        return tmp_profit > profit ? tmp_profit : profit;
+    }
+};
